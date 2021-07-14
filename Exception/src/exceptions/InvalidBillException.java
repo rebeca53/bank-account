@@ -10,9 +10,7 @@ public class InvalidBillException extends RuntimeException{
 		super("Valor que deseja depositar não conduz com os valores de notas existentes");
 		invalidBill = bill;
 	}
-	
-	
-	
+
 	public double getInvalidBill() {
 		
 		return invalidBill;

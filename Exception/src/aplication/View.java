@@ -21,6 +21,7 @@ public class View {
 		print("1- Criar Conta");
 		print("2- Deletar Conta");
 		print("3- Acessar Conta");
+		print("4- Lista Contas");
 		print("0- Encerrar");
 	}
 	public void print(String msg) {

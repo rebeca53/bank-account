@@ -6,22 +6,23 @@ import entities.Account;
 import exceptions.BusinessException;
 import exceptions.InvalidBillException;
 import operations.Deposit;
+import operations.FileWriterReader;
 import operations.Operation;
 import operations.Withdraw;
 public class Controller {
 	
-	private int number;
 	private String holder;
 	private Double balance;
 	private Double withdrawLimit;
 	private View view = new View();
 	private Account account;
-	private LinkedList<Account> accounts = new LinkedList<Account>();
+	private FileWriterReader file;
 	private Byte choice = 1;
 	private Scanner sc;
 	
 	public Controller() {
 		sc = new Scanner(System.in);
+		file = new FileWriterReader();
 		start();
 	}
 
@@ -46,7 +47,7 @@ public class Controller {
 		}
 		finally {
 			sc.close();
-			System.out.println("programa encerrado");
+			this.view.print("programa encerrado");
 		
 		}
 		
@@ -63,8 +64,7 @@ public class Controller {
 		
 		view.print("Digite seu CPF(apenas numero: ");
 		Integer CPF = sc.nextInt();
-		
-		this.account = this.findAccount(CPF);	
+		this.account = file.validation(4, Integer.toString(CPF));
 		if (this.account == null) {
 			view.print("Saldo inicial: ");
 			this.balance = sc.nextDouble();
@@ -72,13 +72,11 @@ public class Controller {
 			view.print("Limite de saque: ");
 			this.withdrawLimit = sc.nextDouble();
 			
-			this.number = this.accounts.size();
-			
-			this.account = new Account(number,balance,withdrawLimit,holder,CPF, birthday);
-			this.accounts.add(this.account);
-			
+			this.account = new Account(balance, withdrawLimit, holder, CPF, birthday);
+			file.createAccount(this.account);
+						
 		}else {
-			view.print("Conta ja existe com o CPF informado");
+			this.view.print("Conta ja existe com o CPF informado");
 		}
 		
 		run();
@@ -93,18 +91,19 @@ public class Controller {
 			this.choice= sc.nextByte();
 			Operation op = accountChoices();
 			if (op != null) {
-				view.print("Digite o valor: ");
+				this.view.print("Digite o valor: ");
 				double amount = sc.nextDouble();
 				Double result = op.action(account.getBalance(), amount);
-				account.setBalance(result);
-				view.print("Novo Saldo: "+ result.toString());
+				this.account.setBalance(result);
+				this.view.print("Novo Saldo: "+ result.toString());
+				file.attAccounts();
 			}
 		}
 		
 		
 	}
 	public void accountsControll() {
-		view.accountMenu();
+		this.view.accountMenu();
 		this.choice= sc.nextByte();
 		Integer CPF = 0;
 		switch(choice) {
@@ -113,44 +112,49 @@ public class Controller {
 			
 			break;
 		case 2:
-			view.print("Digite seu CPF(apenas numero: ");
+			this.view.print("Digite seu CPF(apenas numero: ");
 			CPF = sc.nextInt();
-			this.account = findAccount(CPF);
+			this.account = file.validation(4, Integer.toString(CPF));
+			
 			if (this.account != null) {
-				this.accounts.remove(this.account);
-				view.print("Removida com sucesso");
+			
+				this.file.removeAccount(this.account);
+				this.file.attAccounts();
+				this.view.print("Removida com sucesso");
 				accountsControll();
 				
 			}else {
-				view.print("Conta não foi encontrada");
+				this.view.print("Conta não foi encontrada");
 			}
 			break;
 		case 3:
-			view.print("Digite seu CPF(apenas numero: ");
+			this.view.print("Digite seu CPF(apenas numero: ");
 			CPF = sc.nextInt();
-			this.account = findAccount(CPF);
+			this.account = file.validation(4, Integer.toString(CPF));
+		
 			if (this.account != null) {
 				run();
 			}else {
-				view.print("Conta não foi encontrada, crie uma nova: ");
+				this.view.print("Conta não foi encontrada, crie uma nova: ");
 				this.account = createAccount();
 				
 			}
 			break;
+		case 4:
+			this.printAccount();
 		}
 	}
-	public Account findAccount(Integer CPF) {
-		
-		this.account = null;
-		for(int i = 0; i < accounts.size(); i++) {
-			this.account = accounts.get(i);
-			if(this.account.getCPF() == CPF) {
-				return this.account;
+	public	void printAccount() {
+		LinkedList<Account> accounts = file.getAccounts();
+		if(!accounts.isEmpty()) {
+			this.view.print("---------Contas cadastradas---------");
+			for(Account acc : accounts) {
+				this.view.print(acc.toString()+ "\n ");
 			}
+			this.view.print("-----------------------------------");
+		}else {
+			this.view.print("Nenhuma conta cadastrada no sistema \n ");
 		}
-		
-		return this.account;
-		
 		
 		
 	}
@@ -172,8 +176,8 @@ public class Controller {
 				break;
 			case 3:
 				String data= account.getuserData();
-				view.print(data);
-				view.print(" Saldo Atual: " + account.getBalance().toString());
+				this.view.print(data);
+				this.view.print(" Saldo Atual: " + account.getBalance().toString());
 				break;
 			
 			case 0:

@@ -27,7 +27,9 @@ public final class UserData {
 	
 	@Override
 	public String toString() {
-		return" Titular = "+fullName+"\n CPF = "+ CPF
-				+"\n Data de Nascimento = "+birthday; 
+		return" Titular = "+fullName+" CPF = "+ CPF +" Data de Nascimento= "+birthday; 
+	}
+	public String formatStringTxt() {
+		return fullName+";"+ CPF +";"+birthday; 
 	}
 }

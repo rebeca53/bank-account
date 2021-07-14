@@ -1,28 +1,21 @@
 package entities;
 
+import java.io.Serializable;
 
-public class Account{
+public class Account implements Serializable{
 
-	private Integer number;
+	private static final long serialVersionUID = 1L;
 	private Double balance;
 	private Double withdrawLimit;
 	private UserData userData;
 	public Account() {
 	}
 
-	public Account(Integer number, Double balance, Double withdrawLimit, String holder, Integer CPF, String birthday){
-		this.number = number;
+	public Account(Double balance, Double withdrawLimit, String holder, Integer CPF, String birthday){
+	
 		this.balance = balance;
 		this.withdrawLimit = withdrawLimit;
 		this.userData = new UserData(holder,CPF,birthday);
-	}
-
-	public Integer getNumber() {
-		return number;
-	}
-
-	public void setNumber(Integer number) {
-		this.number = number;
 	}
 
 	public Double getBalance() {
@@ -46,6 +39,14 @@ public class Account{
 	}
 	public Integer getCPF() {
 		return this.userData.getCPF();
+	}
+
+	@Override
+	public String toString() {
+		return "Conta [saldo= " + balance + " limite conta= " + withdrawLimit + userData + "]";
+	}
+	public String formatStringTxt() {
+		return "Account = ;" + balance + ";" + withdrawLimit + ";"+ userData.formatStringTxt() ;
 	}
 		
 
